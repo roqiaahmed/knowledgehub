@@ -1,0 +1,14 @@
+# ADR-001
+
+Decision:
+Use Gin.
+
+Reason:
+Faster development and less boilerplate.
+
+Alternatives:
+net/http
+Echo
+
+Status:
+Accepted
