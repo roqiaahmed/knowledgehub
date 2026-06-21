@@ -1,0 +1,41 @@
+services:
+  # --- PostgreSQL Database Service ---
+  postgres_db:
+    image: postgres:16-alpine
+    container_name: knowledgehub_postgres_db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5433:5432"
+    volumes:
+      - knowledgehub_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d knowledgehub"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # --- Go API Service ---
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: knowledgehub_api_service
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      PORT: 8080
+    volumes:
+      - .:/app
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+volumes:
+  knowledgehub_data:
